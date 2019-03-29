@@ -133,11 +133,15 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
                     if (responseHeaders.name(i).equalsIgnoreCase("Set-Cookie") && responseHeaders.value(i).contains("SESSIONID"))
                     {
                         setSessionIDFromCookie(responseHeaders.value(i));
-                        break;
                     }
                     else if (responseHeaders.name(i).equalsIgnoreCase("Set-Cookie") && responseHeaders.value(i).contains("DO-LB"))
                     {
                         setDOLBFromCookie(responseHeaders.value(i));
+                    }
+
+                    if (sessionID != null && DOLB != null)
+                    {
+                        break;
                     }
                 }
             }

@@ -1,6 +1,8 @@
 buildscript {
     repositories {
-        mavenLocal()
+        if (rootProject.ext.publishToMavenLocal) {
+            mavenLocal()
+        }
     }
     dependencies {
         'com.android.tools.build:gradle:2.3.0'
@@ -8,10 +10,16 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+if (rootProject.ext.publishToMavenLocal) {
+    apply plugin: 'maven-publish'
+}
+else
+{
+    apply plugin: 'com.github.dcendents.android-maven'
+}
 
 archivesBaseName="CritiMonLib"
-version '2.5'
+version '1.0'
 group 'com.BoardiesITSolutions'
 
 android {
@@ -27,8 +35,8 @@ android {
         //applicationId "com.BoardiesITSolutions.Library"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 8
-        versionName = '2.5'
+        versionCode 1
+        versionName = '1.0'
     }
 
     flavorDimensions "debug", "release"
@@ -45,29 +53,37 @@ android {
         abortOnError false
     }
 
-    android.libraryVariants
-    publishing {
-        publications {
-            maven(MavenPublication)
-                    {
-                        artifact getArtifactFullPath()
-                    }
-        }
-    }
+    if (rootProject.ext.publishToMavenLocal)
+    {
+        android.libraryVariants
 
-    libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.aar')) {
-                def fileName = "${archivesBaseName}-${version}.aar"
-                output.outputFile = new File(outputFile.parent, fileName)
-                //outputFileName = fileName
+        publishing {
+            publications {
+                maven(MavenPublication)
+                        {
+                            artifact getArtifactFullPath()
+                        }
+            }
+        }
+
+        librartVariants.all { variant ->
+            variant.outputs.all { output ->
+                def outputFile = output.outputFile
+                if (outputFile != null && outputFile.name.endsWith('.aar'))
+                {
+                    def fileName = "${archivesBaseName}-${version}.aar"
+                    outputFileName = fileName
+                }
             }
         }
     }
 
+
+
     repositories {
-        mavenLocal()
+        if (rootProject.ext.publishToMavenLocal) {
+            mavenLocal()
+        }
         jcenter()
         maven {
             url "https://maven.google.com"
@@ -76,13 +92,7 @@ android {
 }
 
 def getArtifactFullPath() {
-    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        return "D:/AndroidStudioProjects/CritiMonLib/CritiMonLib/build/outputs/aar/${archivesBaseName}-${project.version}.aar"
-    }
-    else
-    {
-        return "./${archivesBaseName}-${project.version}.aar"
-    }
+    return ".//build/outputs/arr/${archivesBaseName}-${project.version}.aar"
 }
 
 dependencies {

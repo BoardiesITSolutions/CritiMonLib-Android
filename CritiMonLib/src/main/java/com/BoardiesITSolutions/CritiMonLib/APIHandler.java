@@ -21,6 +21,7 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
     private APIHandler.API_Call apiCall;
     private ICritiMonResultHandler iCritiMonResultHandler = null;
     private static String sessionID = null;
+    private static String DOLB = null;
 
     public APIHandler(APIHandler.API_Call apiCall)
     {
@@ -95,6 +96,10 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
         {
             headerBuilder.add("Cookie", "SESSIONID=" + sessionID);
         }
+        if ((DOLB != null && !DOLB.isEmpty()))
+        {
+            headerBuilder.add("Cookie", "DO-LB=" + DOLB);
+        }
         headerBuilder.add("Connection", "close");
 
         Headers headers = headerBuilder.build();
@@ -129,6 +134,10 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
                     {
                         setSessionIDFromCookie(responseHeaders.value(i));
                         break;
+                    }
+                    else if (responseHeaders.name(i).equalsIgnoreCase("Set-Cookie") && responseHeaders.value(i).contains("DO-LB"))
+                    {
+                        setDOLBFromCookie(responseHeaders.value(i));
                     }
                 }
             }
@@ -207,6 +216,37 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
             else
             {
                 Log.d("CritiMon", "SESSIONID looks to be blank");
+            }
+        }
+    }
+
+    private void setDOLBFromCookie(String cookie)
+    {
+        String[] cookieData = cookie.split(";");
+        String nameAndValueString = "";
+        if (cookieData[0].startsWith("DO-LB"))
+        {
+            nameAndValueString = cookieData[0].trim();
+        }
+        else if ((cookieData.length > 1) && cookieData[1].startsWith("DO-LB"))
+        {
+            nameAndValueString = cookieData[0].trim();
+        }
+        else
+        {
+            Log.d("CritiMon", "DO-LB not found in cookie string");
+        }
+
+        if (!nameAndValueString.isEmpty())
+        {
+            String[] nameAndValue = nameAndValueString.split("=");
+            if (nameAndValue.length == 2)
+            {
+                DOLB = nameAndValue[1];
+            }
+            else
+            {
+                Log.d("CritiMon", "DO-LB looks to be blank");
             }
         }
     }

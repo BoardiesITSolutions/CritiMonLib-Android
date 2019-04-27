@@ -20,7 +20,7 @@ repositories {
 Then in the dependencies section add the library as below:
 ```
 dependencies {
-        implementation 'com.github.BoardiesITSolutions:Android-MySQL-Connector:TAG'
+        implementation 'com.github.BoardiesITSolutions:CritiMonLib-Android:TAG'
     }
 ```
 

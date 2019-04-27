@@ -24,7 +24,7 @@ dependencies {
     }
 ```
 
-Where TAG is the latest tagged release version number at [ADD LINK HERE].
+Where TAG is the latest tagged release version number at https://github.com/BoardiesITSolutions/CritiMonLib-Android/releases.
 
 You should then be able to start using the library. 
 

@@ -24,10 +24,11 @@ public class CritiMon implements ICritiMonResultHandler
     public enum CrashSeverity {Low, Medium, Major, Critical}
     protected static String APIKey;
     protected static String AppID;
+    protected static String AppVersion;
     private static ICritiMonResultHandler iCritiMonResultHandler = null;
     protected static Thread.UncaughtExceptionHandler systemUnhandledExceptionHandler = null;
 
-    private void InitialiseCritiMon(Context context, String apiKey, String appID)
+    private void InitialiseCritiMon(Context context, String apiKey, String appID, String appVersion)
     {
         //this.setAPICall(API_Call.Initialise);
         //this.setICritiMonResultHandler(this);
@@ -35,11 +36,13 @@ public class CritiMon implements ICritiMonResultHandler
         CritiMon.context = context;
         CritiMon.APIKey = apiKey;
         CritiMon.AppID = appID;
+        CritiMon.AppVersion = appVersion;
         //List<NameValuePair> postData = new ArrayList<>();
         HashMap<String, String> postData = new HashMap<>();
         postData.put("APIKey", apiKey);
         postData.put("ApplicationID", appID);
         postData.put("DeviceID", Helpers.getDeviceUID(context));
+        postData.put("AppVersion", appVersion);
         APIHandler apiHandler = new APIHandler(APIHandler.API_Call.Initialise, this);
         apiHandler.execute(postData);
         //addPostData("APIKey", apiKey);
@@ -69,15 +72,15 @@ public class CritiMon implements ICritiMonResultHandler
 
     }
 
-    public static void Initialise(Context context, String apiKey, String appID)
+    public static void Initialise(Context context, String apiKey, String appID, String appVersion)
     {
-        new CritiMon().InitialiseCritiMon(context, apiKey, appID);
+        new CritiMon().InitialiseCritiMon(context, apiKey, appID, appVersion);
     }
 
-    protected static void Initialise(Context context, String apiKey, String appID, ICritiMonResultHandler resultHandler)
+    protected static void Initialise(Context context, String apiKey, String appID, String appVersion, ICritiMonResultHandler resultHandler)
     {
         iCritiMonResultHandler = resultHandler;
-        new CritiMon().InitialiseCritiMon(context, apiKey, appID);
+        new CritiMon().InitialiseCritiMon(context, apiKey, appID, appVersion);
     }
 
     public static void ReportCrash(Exception ex, CrashSeverity crashSeverity)

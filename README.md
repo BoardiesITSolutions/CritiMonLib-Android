@@ -65,14 +65,18 @@ class MainActivity extends BaseActivity
 To initialise CritiMon you can do the following
 
 ```
-CritiMon.Initialise(MainActivity.this, <api_key>, <app_id);
+CritiMon.Initialise(MainActivity.this, <api_key>, <app_id>, <app_version>);
 ```
 
 The `<api_key>` can be found from the settings page. There is a button next to the API key that
 copies the API key directly to your clipboard. 
 
 The `<app_id>` can be found on the application list page and is an 8 digit number. Again there
-is a button next to the app id so the app id can be copied to your clipboard. 
+is a button next to the app id so the app id can be copied to your clipboard.
+
+The `<app_version>` is a string representation of the version of your app. The best way to do this
+would be to add your app version to your strings.xml file and then use the strings.xml version
+for the app version parameter.
 
 If you are only interested in receive fatal crashes - i.e. crashes where it will
 cause Android to force close your app, then the above is all you need to do. 

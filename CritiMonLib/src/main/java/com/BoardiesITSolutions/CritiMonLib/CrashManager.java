@@ -236,7 +236,7 @@ class CrashManager implements ICritiMonResultHandler
                         if (initialiseRetryCount < 3)
                         {
                             initialiseRetryCount++;
-                            CritiMon.Initialise(CritiMon.context, CritiMon.APIKey, CritiMon.AppID, new ICritiMonResultHandler()
+                            CritiMon.Initialise(CritiMon.context, CritiMon.APIKey, CritiMon.AppID, CritiMon.AppVersion, new ICritiMonResultHandler()
                             {
                                 @Override
                                 public void processResult(APIHandler.API_Call api_call, JSONObject resultObj)

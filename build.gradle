@@ -2,7 +2,7 @@
 buildscript {
 
     ext {
-        publishToMavenLocal = false
+        publishToMavenLocal = true
     }
 
     repositories {
@@ -10,10 +10,12 @@ buildscript {
         {
             mavenLocal()
         }
+        jcenter()
         mavenCentral()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.4.1'
         if (!publishToMavenLocal)
         {
             classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
@@ -28,5 +30,6 @@ allprojects {
             mavenLocal()
         }
         mavenCentral()
+        google()
     }
 }

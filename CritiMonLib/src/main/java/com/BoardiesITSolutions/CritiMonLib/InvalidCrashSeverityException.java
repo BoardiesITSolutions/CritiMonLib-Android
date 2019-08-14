@@ -1,7 +1,10 @@
 package com.BoardiesITSolutions.CritiMonLib;
 
 /**
- * Created by Chris on 22/10/2017.
+ * Copyright (C) Chris Board - Boardies IT Solutions
+ * August 2019
+ * https://critimon.com
+ * https://support.boardiesitsolutions.com
  */
 
 public class InvalidCrashSeverityException extends Exception

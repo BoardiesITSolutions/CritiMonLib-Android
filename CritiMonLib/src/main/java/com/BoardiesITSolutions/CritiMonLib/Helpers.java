@@ -6,9 +6,11 @@ import android.content.SharedPreferences;
 import java.util.Random;
 
 /**
- * Created by Chris on 29/01/2018.
+ * Copyright (C) Chris Board - Boardies IT Solutions
+ * August 2019
+ * https://critimon.com
+ * https://support.boardiesitsolutions.com
  */
-
 public class Helpers
 {
     public static String getDeviceUID(Context context)

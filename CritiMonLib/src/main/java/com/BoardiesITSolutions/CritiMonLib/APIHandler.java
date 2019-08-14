@@ -1,3 +1,5 @@
+
+
 package com.BoardiesITSolutions.CritiMonLib;
 
 import android.os.AsyncTask;
@@ -11,9 +13,11 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Created by Chris on 07/01/2018.
+ * Copyright (C) Chris Board - Boardies IT Solutions
+ * August 2019
+ * https://critimon.com
+ * https://support.boardiesitsolutions.com
  */
-
 public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObject>
 {
     protected static final int API_NOT_INITIALISED = 4;
@@ -22,6 +26,8 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
     private ICritiMonResultHandler iCritiMonResultHandler = null;
     private static String sessionID = null;
     private static String DOLB = null;
+    private HashMap<String, String> postData;
+    private IInternalCritiMonResponseHandler iInternalCritiMonResponseHandler;
 
     public APIHandler(APIHandler.API_Call apiCall)
     {
@@ -34,18 +40,28 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
         this.iCritiMonResultHandler = iCritiMonResultHandler;
     }
 
+    public APIHandler(APIHandler.API_Call apiCall, ICritiMonResultHandler iCritiMonResultHandler, IInternalCritiMonResponseHandler iInternalCritiMonResponseHandler)
+    {
+        this.apiCall = apiCall;
+        this.iCritiMonResultHandler = iCritiMonResultHandler;
+        this.iInternalCritiMonResponseHandler = iInternalCritiMonResponseHandler;
+    }
+
     @Override
     protected JSONObject doInBackground(HashMap<String, String>[] lists)
     {
+
         String serverURL = CritiMon.context.getString(R.string.critimon_url) + "/";
 
         //If the server URL is just a slash, it means the app hasn't tried to override (only done by Boardies IT Solutions)
         if (serverURL.equals("/"))
         {
-            serverURL = "https://critimon-engine.boardiesitsolutions.com/";
+            serverURL = "https://engine.critimon.com/";
         }
 
         HashMap<String, String> postData = lists[0];
+
+
 
         if (apiCall == API_Call.SendCrash && postData.size() == 0)
         {
@@ -152,7 +168,35 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
 
             if ((responseBody != null) && !responseBody.isEmpty())
             {
-                return new JSONObject(responseBody);
+                JSONObject jsonObject = new JSONObject(responseBody);
+                if (apiCall == API_Call.SendCrash)
+                {
+                    if (jsonObject.getInt("result") == 4) //Not initialised response
+                    {
+                        CritiMon.retryCrashInfoQueue.add(postData);
+                    }
+                }
+                else if (apiCall == API_Call.Initialise) {
+                    try {
+                        if (jsonObject.getInt("result") == 0) {
+                            //If initialisation done, trigger a retry of everything in the queue
+                            if (iInternalCritiMonResponseHandler != null) {
+                                iInternalCritiMonResponseHandler.retryCrashAfterInitialisation();
+                            }
+                        }
+                    }
+                    catch (JSONException ex) {
+                        Log.e("APIHandler", ex.toString());
+                    }
+                }
+
+                //Check if undergoing maintenance returned if so, retry as the load balancer
+                //should update pretty much straight away
+                if (jsonObject.getInt("result") == 5 && iInternalCritiMonResponseHandler != null)
+                {
+                    iInternalCritiMonResponseHandler.retryInitialisation();
+                }
+                return jsonObject;
             }
             else
             {
@@ -188,6 +232,7 @@ public class APIHandler extends AsyncTask<HashMap<String, String>, Void, JSONObj
                 {
                     iCritiMonResultHandler.processResult(apiCall, jsonObject);
                 }
+
             }
         }
     }

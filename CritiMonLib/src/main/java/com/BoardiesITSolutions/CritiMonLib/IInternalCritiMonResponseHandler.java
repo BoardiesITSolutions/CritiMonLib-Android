@@ -1,7 +1,5 @@
 package com.BoardiesITSolutions.CritiMonLib;
 
-import org.json.JSONObject;
-
 import java.util.HashMap;
 
 /**
@@ -11,9 +9,8 @@ import java.util.HashMap;
  * https://support.boardiesitsolutions.com
  */
 
-public interface ICritiMonResultHandler
+public interface IInternalCritiMonResponseHandler
 {
-    void processResult(APIHandler.API_Call api_call, JSONObject resultObj);
-
+    void retryCrashAfterInitialisation();
+    void retryInitialisation();
 }
-

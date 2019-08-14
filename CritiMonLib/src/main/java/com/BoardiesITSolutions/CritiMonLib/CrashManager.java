@@ -23,14 +23,36 @@ import java.util.Locale;
 import static java.security.AccessController.getContext;
 
 /**
- * Created by Chris on 22/10/2017.
+ * Copyright (C) Chris Board - Boardies IT Solutions
+ * August 2019
+ * https://critimon.com
+ * https://support.boardiesitsolutions.com
  */
 
-class CrashManager implements ICritiMonResultHandler
+class CrashManager implements ICritiMonResultHandler, IInternalCritiMonResponseHandler
 {
 
     private HashMap<String, String> postData;
     private int initialiseRetryCount = 0;
+
+    @Override
+    public void retryCrashAfterInitialisation()
+    {
+        if (CritiMon.retryCrashInfoQueue.size() > 0) {
+            for (int i = CritiMon.retryCrashInfoQueue.size() - 1; i >= 0; i--) {
+                APIHandler apiHandler = new APIHandler(APIHandler.API_Call.SendCrash, null, this);
+                apiHandler.execute(CritiMon.retryCrashInfoQueue.get(i));
+                CritiMon.retryCrashInfoQueue.remove(i);
+            }
+        }
+    }
+
+    @Override
+    public void retryInitialisation()
+    {
+        CritiMon.Initialise(CritiMon.context, CritiMon.APIKey, CritiMon.AppID, CritiMon.AppVersion);
+    }
+
     protected enum CrashType {Handled, Unhandled}
 
     protected CrashManager()
@@ -65,6 +87,7 @@ class CrashManager implements ICritiMonResultHandler
             StringWriter writer = new StringWriter();
             ex.printStackTrace(new PrintWriter(writer));
             postData.put("Stacktrace", writer.toString());
+            parseStacktraceAndClassFileAndLineNoToPostdata(writer.toString());
             sendCrashData();
         }
         catch (InvalidCrashSeverityException e)
@@ -77,16 +100,6 @@ class CrashManager implements ICritiMonResultHandler
     {
         try
         {
-            /*addCrashSeverityToPostData(crashSeverity);
-            addDeviceDataToPostFields();
-            postData.add(new BasicNameValuePair("CrashType", "Handled"));
-            postData.add(new BasicNameValuePair("ExceptionType", ex.getClass().getName()));
-            StringWriter writer = new StringWriter();
-            ex.printStackTrace(new PrintWriter(writer));
-            postData.add(new BasicNameValuePair("Stacktrace", writer.toString()));
-            postData.add(new BasicNameValuePair("PropertyKey", key));
-            postData.add(new BasicNameValuePair("PropertyValue", value));
-            sendCrashData();*/
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(key, value);
             this.ReportCrash(ex, crashSeverity, jsonObject);
@@ -123,12 +136,63 @@ class CrashManager implements ICritiMonResultHandler
             StringWriter writer = new StringWriter();
             ex.printStackTrace(new PrintWriter(writer));
             postData.put("Stacktrace", writer.toString());
+            parseStacktraceAndClassFileAndLineNoToPostdata(writer.toString());
             postData.put("CustomProperty", jsonObject.toString());
             sendCrashData();
         }
         catch (InvalidCrashSeverityException e)
         {
             Log.e("CritiMon", e.toString());
+        }
+    }
+
+    protected void parseStacktraceAndClassFileAndLineNoToPostdata(String stacktrace)
+    {
+        if (CritiMon.context != null)
+        {
+            return;
+        }
+        String packageName = CritiMon.context.getPackageName();
+        String[] stacktraceLines = stacktrace.split("\\r?\\n");
+
+        String lineWithPackageName = "";
+        for (int i = 0; i < stacktraceLines.length; i++)
+        {
+            if (stacktraceLines[i].contains(packageName))
+            {
+                lineWithPackageName = stacktraceLines[i];
+                break;
+            }
+        }
+
+        if (!lineWithPackageName.isEmpty())
+        {
+            int startOfClassAndLineNumber = lineWithPackageName.indexOf("(") + 1;
+
+            String classAndLineNumber = lineWithPackageName.substring(startOfClassAndLineNumber).replace(")", "");
+            String[] classAndLineNumberArray = classAndLineNumber.split(":");
+            postData.put("ClassFile", classAndLineNumberArray[0]);
+            postData.put("LineNo", classAndLineNumberArray[1]);
+        }
+        else
+        {
+            String lineWithClassAndLineNumber = "";
+            for (int i = 0; i < stacktraceLines.length; i++)
+            {
+                if (stacktraceLines[i].contains(":") && stacktraceLines[i].contains(":"))
+                {
+                    lineWithClassAndLineNumber = stacktraceLines[i];
+                    break;
+                }
+            }
+            if (!lineWithClassAndLineNumber.isEmpty())
+            {
+                int startOfClassAndLineNumber = lineWithClassAndLineNumber.indexOf("(");
+                String classAndLineNumber = lineWithClassAndLineNumber.substring(startOfClassAndLineNumber).replace(")", "");
+                String[] classAndLineNumberArray = classAndLineNumber.split(":");
+                postData.put("ClassFile", classAndLineNumberArray[0]);
+                postData.put("LineNo", classAndLineNumberArray[1]);
+            }
         }
     }
 
@@ -203,7 +267,7 @@ class CrashManager implements ICritiMonResultHandler
             {
                 postData.put("APIKey", CritiMon.APIKey);
                 postData.put("AppID", CritiMon.AppID);
-                APIHandler apiHandler = new APIHandler(APIHandler.API_Call.SendCrash, this);
+                APIHandler apiHandler = new APIHandler(APIHandler.API_Call.SendCrash, this, this);
                 apiHandler.execute(postData);
             }
             else

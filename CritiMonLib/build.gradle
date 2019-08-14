@@ -5,9 +5,10 @@ buildscript {
         }
     }
     dependencies {
-        'com.android.tools.build:gradle:2.3.0'
+        'com.android.tools.build:gradle:5.1.1'
     }
 }
+def libBuildType
 
 apply plugin: 'com.android.library'
 if (rootProject.ext.publishToMavenLocal) {
@@ -19,12 +20,11 @@ else
 }
 
 archivesBaseName="CritiMonLib"
-version '1.0'
+version '1.2'
 group 'com.BoardiesITSolutions'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "26.0.2"
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -35,8 +35,8 @@ android {
         //applicationId "com.BoardiesITSolutions.Library"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 1
-        versionName = '1.0'
+        versionCode 3
+        versionName = '1.2'
     }
 
     flavorDimensions "debug", "release"
@@ -66,8 +66,23 @@ android {
             }
         }
 
-        librartVariants.all { variant ->
+        libraryVariants.all { variant ->
+            logger.debug("Setting build to be {}", variant.buildType.name)
+            libBuildType = variant.buildType.name
+            logger.info("libBuildType is set to {}", libBuildType)
             variant.outputs.all { output ->
+                def outputFile = output.outputFile
+                if (outputFile != null && outputFile.name.endsWith('.aar'))
+                {
+                    //def fileName = "${archivesBaseName}-${version}.aar"
+                    def fileName = "${archivesBaseName}-debug.aar"
+                    outputFileName = fileName
+                }
+            }
+        }
+
+        /*libraryVariants.all { variant ->
+            variant.outputs.any { output ->
                 def outputFile = output.outputFile
                 if (outputFile != null && outputFile.name.endsWith('.aar'))
                 {
@@ -75,7 +90,7 @@ android {
                     outputFileName = fileName
                 }
             }
-        }
+        }*/
     }
 
 
@@ -92,11 +107,11 @@ android {
 }
 
 def getArtifactFullPath() {
-    return ".//build/outputs/arr/${archivesBaseName}-${project.version}.aar"
+    return ".//build/outputs/aar/${archivesBaseName}-debug.aar"
 }
 
 dependencies {
     //compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
-    compile 'com.squareup.okhttp3:okhttp:3.9.1'
-    compile 'com.squareup.okio:okio:1.13.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.2'
+    implementation 'com.squareup.okio:okio:1.17.2'
 }

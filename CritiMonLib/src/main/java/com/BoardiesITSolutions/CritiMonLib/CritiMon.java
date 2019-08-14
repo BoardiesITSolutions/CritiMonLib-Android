@@ -13,20 +13,38 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by Chris on 24/07/2017.
+ * Copyright (C) Chris Board - Boardies IT Solutions
+ * August 2019
+ * https://critimon.com
+ * https://support.boardiesitsolutions.com
  */
 
-public class CritiMon implements ICritiMonResultHandler
+public class CritiMon implements ICritiMonResultHandler, IInternalCritiMonResponseHandler
 {
     protected static boolean CritiMonInitialised = false;
     protected static String SessionID ;
     protected static Context context;
+
+    @Override
+    public void retryCrashAfterInitialisation()
+    {
+        //Not needed here
+    }
+
+    @Override
+    public void retryInitialisation()
+    {
+        CritiMon.Initialise(CritiMon.context, CritiMon.APIKey, CritiMon.AppID, CritiMon.AppVersion);
+    }
+
     public enum CrashSeverity {Low, Medium, Major, Critical}
     protected static String APIKey;
     protected static String AppID;
     protected static String AppVersion;
     private static ICritiMonResultHandler iCritiMonResultHandler = null;
     protected static Thread.UncaughtExceptionHandler systemUnhandledExceptionHandler = null;
+    public static ArrayList<HashMap<String, String>> retryCrashInfoQueue = new ArrayList<>();
+
 
     private void InitialiseCritiMon(Context context, String apiKey, String appID, String appVersion)
     {
@@ -45,9 +63,6 @@ public class CritiMon implements ICritiMonResultHandler
         postData.put("AppVersion", appVersion);
         APIHandler apiHandler = new APIHandler(APIHandler.API_Call.Initialise, this);
         apiHandler.execute(postData);
-        //addPostData("APIKey", apiKey);
-        //addPostData("ApplicationID", appID);
-        //execute(getPostData());
     }
 
     private void setunhandledExceptionHandler()

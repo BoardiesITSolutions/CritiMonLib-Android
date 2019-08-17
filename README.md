@@ -1,8 +1,5 @@
-<img src="https://critimon.boardiesitsolutions.com/images/logo.png" width="150">
+<img src="https://critimon.com/images/logo.png" width="150">
 
-# Notice
-The master is currently not supported. We are launching a new version of CritiMon very
-soon at which point this library will be tagged and ready for use
 
 # Introduction
 The Android CritiMon library allows you to send both handled and

@@ -64,11 +64,13 @@ class CrashManager implements ICritiMonResultHandler, IInternalCritiMonResponseH
 
     protected void ReportCrash(Exception ex, CritiMon.CrashSeverity crashSeverity)
     {
+        postData.clear();
         ReportCrash(ex, crashSeverity, CrashType.Handled);
     }
 
     protected void ReportCrash(Exception ex, CritiMon.CrashSeverity crashSeverity, CrashType crashType)
     {
+        postData.clear();
         try
         {
             addCrashSeverityToPostData(crashSeverity);
@@ -106,7 +108,7 @@ class CrashManager implements ICritiMonResultHandler, IInternalCritiMonResponseH
         }
         catch (JSONException ex1)
         {
-
+            Log.e("CritiMonCrashManager", ex1.toString());
         }
     }
 
@@ -120,12 +122,13 @@ class CrashManager implements ICritiMonResultHandler, IInternalCritiMonResponseH
         }
         catch (JSONException ex1)
         {
-
+            Log.e("CritiMonCrashManager", ex1.toString());
         }
     }
 
     protected void ReportCrash(Exception ex, CritiMon.CrashSeverity crashSeverity, JSONObject jsonObject)
     {
+        postData.clear();
         try
         {
             addCrashSeverityToPostData(crashSeverity);
@@ -148,7 +151,7 @@ class CrashManager implements ICritiMonResultHandler, IInternalCritiMonResponseH
 
     protected void parseStacktraceAndClassFileAndLineNoToPostdata(String stacktrace)
     {
-        if (CritiMon.context != null)
+        if (CritiMon.context == null)
         {
             return;
         }

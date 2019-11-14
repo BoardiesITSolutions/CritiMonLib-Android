@@ -22,6 +22,8 @@ Then in the dependencies section add the library as below:
 ```
 dependencies {
         implementation 'com.github.BoardiesITSolutions:CritiMonLib-Android:TAG'
+        implementation 'com.squareup.okio:okio:1.17.2'
+        implementation 'com.squareup.okhttp3:okhttp:3.12.2'
     }
 ```
 
